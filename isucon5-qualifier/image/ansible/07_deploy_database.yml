@@ -2,7 +2,6 @@
 - hosts: imageservers
   gather_facts: no
   sudo: yes
-  sudo_user: isucon
   tasks:
     - git:
         repo=https://github.com/isucon/isucon5-qualify.git
@@ -10,7 +9,8 @@
     - shell: |
         mysqladmin -u root create isucon5q
         cat /tmp/isucon5-qualify/webapp/sql/schema.sql | mysql -u root isucon5q
-    - shell: |
+    - sudo_user: isucon
+      shell: |
         export PATH=/home/isucon/.local/ruby/bin:$PATH
         bundle install
         ./gen.rb gen_users
@@ -22,7 +22,6 @@
       args:
         chdir: /tmp/isucon5-qualify/webapp/script
     - name: copy my.cnf
-      sudo_user: root
       copy: src=../files/my.cnf dest=/etc/my.cnf owner=root mode=644
       notify:
         - restart mysqld
